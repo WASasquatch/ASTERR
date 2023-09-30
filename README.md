@@ -25,5 +25,7 @@ Preset scripts allow you to pre-define functions to pick from and run any time. 
 - `asterr_result` var can be used to define the result to return to the node.
 - `extra_pnginfo` can be used and overwritten to return edited extra_pnginfo
 
+## Available Scripts
+
 - **resize_maxsize.py**
   - Resize input `a` (`IMAGE`) propotionally with `b` (`INT`) as max size of the result.
