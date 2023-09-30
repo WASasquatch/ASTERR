@@ -45,6 +45,8 @@ And so on, or you could do
 ### Optional params
  - `trigger_run_01` (`INT`): `0` or `1` `INT` that defines whether the script should run or not.
  - `a` through `k` (`*`): Arbitrary input (`STRING`, `INT`, `FLOAT`, `IMAGE`, `MODEL`, etc) to pass as a variable to the execution namespace.
+> [!WARNING]
+> Be sure to expect and handle the data you input. If `a` is a `IMAGE` tensor input, we need to handle the batched tensor ASTERR will receive accordingly.
  - `preset_script` (`COMBO`): List of `.py` scripts located in `ASTERR/scripts` for preset execution. This will override the `script` input.
  - `always_run` (`COMBO`): `false` or `true` on whether to always run the script (similar to trigger on run, but a constant state). If false, it will only run when a change has been made.
 ### Hidden params
