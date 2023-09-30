@@ -35,7 +35,7 @@ And so on, or you could do
 
 ---
 
-# NODES
+# Nodes
 
 ## `ASTERR Script` Node
 
