@@ -1,7 +1,8 @@
 # ASTERR
  Abstract Syntax Trees Evaluated Restricted Run (ASTERR) is a Python Script executor for ComfyUI
 
-### <font color="red">WARNING:</font> ASTERR runs Python Code from a Web Interface! It is highly recommended to run this in a closed-off environment, as it could have potential security risks.
+> [!WARNING] 
+> ASTERR runs Python Code from a Web Interface! It is highly recommended to run this in a closed-off environment, as it could have potential security risks.
 
 # Installation
 
