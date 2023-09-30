@@ -53,7 +53,7 @@ And so on, or you could do
 
 Save a ASTERR script which would then be available under `ASTERR/scripts` and the `preset_scripts` menu in the [ASTERR Script](https://github.com/WASasquatch/ASTERR#ASTERR-Script) node.
 
-### Requited Params
+### Required Params
  - `script_string` (`STRING`): Script content string input. This string is saved to a python script file under `ASTERR/scripts`
  - `script_name` (`STRING`): Script name to use, does not include the extension.
  - `overwrite_script` (`COMBO`): `false` or `true` on whether to overwrite the script that already exists on disk.
