@@ -6,12 +6,6 @@ asterr_root = os.path.dirname(__file__)
 scripts_path =  os.path.join(asterr_root, "scripts")
 config_path = os.path.join(asterr_root, "config.json")
 
-scripts = {"None": None}
-for script_name in os.listdir(scripts_path):
-    script_path = os.path.join(scripts_path, script_name)
-    if os.path.isfile(script_path):
-        scripts[script_name] = script_path
-
 configuration = {}
 try:
     with open(config_path, 'r', encoding='utf-8') as file:
@@ -149,6 +143,15 @@ class SuspiciousImport(Exception):
     def __str__(self):
         return str(self.original_error)
         
+def get_asterr_scripts():
+    scripts = {"None": None}
+    if not os.path.exists(scripts_path):
+        os.makedirs(scripts_path, exist_ok=True)
+    for script_name in os.listdir(scripts_path):
+        script_path = os.path.join(scripts_path, script_name)
+        if os.path.isfile(script_path):
+            scripts[script_name] = script_path
+    return scripts
 
 # Hack: string type that is always equal in not equal comparisons
 # Borrowed from: https://github.com/M1kep/Comfy_KepListStuff/blob/main/utils.py
@@ -158,12 +161,13 @@ class AnyType(str):
 
 wildcard = AnyType("*")
 
-class WAS_ASTERR:
+class ASTERRNode:
     def __init__(self):
         pass
 
     @classmethod
     def INPUT_TYPES(cls):
+        scripts = get_asterr_scripts()
         return {
             "required": {
                 "script": ("STRING", {"multiline": True, "dynamicPrompts": False}),
@@ -210,19 +214,21 @@ class WAS_ASTERR:
 
     def evaluate(self, script, trigger_run_01=None, preset_script=None, always_run=None, **kwargs):
     
+        scripts = get_asterr_scripts()
         if preset_script:
             script_path = scripts[preset_script]
-            if os.path.exists(script_path):
-                print(f"Loading preset script: {os.path.basename(script_path)}")
-                with open(script_path, 'r', encoding="utf-8") as file:
-                    new_script = file.read()
-                if new_script:
-                    script = new_script
+            if script_path:
+                if os.path.exists(script_path):
+                    print(f"Loading preset script: {os.path.basename(script_path)}")
+                    with open(script_path, 'r', encoding="utf-8") as file:
+                        new_script = file.read()
+                    if new_script:
+                        script = new_script
     
         recursion_limit = configuration.get("recursion_limit", None)
         allowed_modules = configuration.get("allowed_modules", None)
     
-        asterr = ASTERR(script, params=kwargs, allowed_modules=allowed_modules, recursion_limit=recursion_limit)
+        asterr = ASTERR(code=script, params=kwargs, allowed_modules=allowed_modules, recursion_limit=recursion_limit)
         out, error = asterr.execute()
         
         if error:
@@ -232,11 +238,65 @@ class WAS_ASTERR:
             return out[0], { "extra_pnginfo": out[1] }
         else:
             return out[0],
+            
+class SaveASTERRScript:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "script_string": ("STRING", {"forceInput": True}),
+                "script_name": ("STRING", {"default": ""}),
+                "overwrite_script": (["false", "true"],),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("script_string",)
+
+    FUNCTION = "save_script"
+
+    CATEGORY = "_for_testing"
+
+    def save_script(self, script_string, script_name, overwrite_script):
+    
+        do_continue = True
+        save_script_path = os.path.join(scripts_path, script_name + '.py')
+    
+        if script_string.strip():
+        
+            if not script_name.strip():
+                print("\033[93mWarning:\033[0m `script_name` is empty. You must provide a valid script name.")
+                
+            try:
+            
+                if not os.path.exists(scripts_path):
+                    os.makedirs(scripts_path, exist_ok=True)
+                    
+                if os.path.exists(save_script_path):
+                    do_continue = True if overwrite_script == "true" else False
+                    
+                if do_continue:
+                    with open(save_script_path, "w", encoding="utf-8") as file:
+                        file.write(script_string)
+                    print(f"ASTERR saved script to: {save_script_path}")
+                        
+            except Exception as e:
+                raise e
+                
+        else:
+            print("\033[93mWarning:\033[0m `script_string` is empty. You must provide a script to save.")
+            
+        return (script_string, )
 
 NODE_CLASS_MAPPINGS = {
-    "ASTERR": WAS_ASTERR,
+    "ASTERR": ASTERRNode,
+    "SaveASTERR": SaveASTERRScript
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "ASTERR": "ASTERR Script",
+    "SaveASTERR": "Save ASTERR Script"
 }
